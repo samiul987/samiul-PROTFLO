@@ -20,17 +20,6 @@ export interface Service {
   order: number;
 }
 
-export interface PricingCard {
-  id: string;
-  title: string;
-  price: string;
-  features: string[];
-  ctaText: string;
-  ctaLink?: string;
-  order: number;
-  isPopular?: boolean;
-}
-
 export interface SiteSettings {
   email: string;
   phone1: string;

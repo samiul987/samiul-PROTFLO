@@ -49,9 +49,9 @@ const PROJECTS = [
     name: "Nextlevel Studio",
     category: "Client",
     images: {
-      col1_1: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055344_5eff02e0-87a5-41ce-b64f-eb08da8f33db.png&w=1280&q=85",
-      col1_2: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055431_11d841fd-8b41-46a5-82e4-b04f2407a7d8.png&w=1280&q=85",
-      col2: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055451_e317bf2d-28d4-48cc-86b0-6f72f25b6327.png&w=1280&q=85"
+      col1_1: "https://i.imgur.com/67VMLgO.png",
+      col1_2: "https://i.imgur.com/u2Gs2Rl.png",
+      col2: "https://i.imgur.com/8XRZ94X.png"
     }
   },
   {
@@ -59,9 +59,9 @@ const PROJECTS = [
     name: "Aura Brand Identity",
     category: "Personal",
     images: {
-      col1_1: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055654_911201c5-36d9-4bc6-bac7-331adfce159f.png&w=1280&q=85",
-      col1_2: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055723_5ceda0b8-d9c2-4665-b2e3-83ba19ba76d1.png&w=1280&q=85",
-      col2: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055753_adc5dcbd-a8e6-49c0-b43a-9b030d835cea.png&w=1280&q=85"
+      col1_1: "https://i.imgur.com/COOaUgE.png",
+      col1_2: "https://i.imgur.com/RHDS0h7.png",
+      col2: "https://i.imgur.com/CvNFgTI.png"
     }
   },
   {
@@ -69,9 +69,9 @@ const PROJECTS = [
     name: "Solaris Digital",
     category: "Client",
     images: {
-      col1_1: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055759_963cfb0b-4bd1-4b0f-9d0a-09bd6cf95b2f.png&w=1280&q=85",
-      col1_2: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_060108_438f781a-9846-4dcc-89ab-c4e6cb830f5b.png&w=1280&q=85",
-      col2: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055818_9d062121-ad7e-46b9-999a-1a6a692ef1ee.png&w=1280&q=85"
+      col1_1: "https://i.imgur.com/33KdQBI.png",
+      col1_2: "https://i.imgur.com/rI8rzm0.png",
+      col2: "https://i.imgur.com/eSGkTSp.png"
     }
   }
 ];
@@ -90,13 +90,17 @@ export function HeroSection() {
     <section className="relative h-screen w-full flex flex-col overflow-x-clip px-6 md:px-10">
       {/* Navbar */}
       <FadeIn delay={0} y={-20} as="nav" className="flex justify-between items-center py-6 md:py-8 z-50">
-        {["About", "Price", "Projects", "Contact"].map((link) => (
+        {[
+          { name: "About", href: "#about" },
+          { name: "Projects", href: "#projects" },
+          { name: "Contact", href: "#contact" }
+        ].map((link) => (
           <a
-            key={link}
-            href={`#${link.toLowerCase()}`}
+            key={link.name}
+            href={link.href}
             className="text-sm md:text-lg lg:text-[1.4rem] font-medium uppercase tracking-wider text-[#D7E2EA] hover:opacity-70 transition-opacity duration-200"
           >
-            {link}
+            {link.name}
           </a>
         ))}
       </FadeIn>
@@ -212,6 +216,10 @@ export function AboutSection() {
     return () => unsub();
   }, []);
 
+  const defaultAboutText = "We are a results-driven web development team focused on helping businesses grow through powerful digital experiences. Our approach combines strategic thinking, modern design, and clean development to build websites that don’t just look impressive—but actually perform.\n\nWe specialize in website design and development tailored to each brand’s identity, ensuring a strong online presence that builds trust and drives engagement. From sleek landing pages to fully functional business platforms, every project is crafted with precision, usability, and scalability in mind.\n\nBeyond just building websites, we help businesses establish and shape their brand in the digital space. Whether you're launching something new or upgrading an existing presence, we work to create a foundation that supports long-term growth and visibility.\n\nOur goal is simple: to turn ideas into impactful digital products that elevate your business and help you stand out in a competitive market.";
+
+  const paragraphs = (settings?.aboutText || defaultAboutText).split('\n\n');
+
   return (
     <section id="about" className="relative min-h-screen w-full flex flex-col items-center justify-center px-5 sm:px-8 md:px-10 py-20 overflow-hidden">
       {/* Decorative 3D images */}
@@ -228,20 +236,25 @@ export function AboutSection() {
         <img src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/Group_134-1.2e04f3ce.png" className="w-[130px] sm:w-[170px] md:w-[220px]" alt="obj2" />
       </FadeIn>
 
-      <div className="flex flex-col items-center gap-10 sm:gap-14 md:gap-16 z-10 w-full">
+      <div className="flex flex-col items-center gap-10 sm:gap-14 md:gap-16 z-10 w-full max-w-[900px]">
         <FadeIn delay={0} y={40}>
           <h2 className="hero-heading font-black uppercase leading-none tracking-tight text-center" style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}>
             About me
           </h2>
         </FadeIn>
 
-        <AnimatedText 
-          text={settings?.aboutText || "We are a results-driven web development team..."}
-          className="text-[#D7E2EA] font-medium leading-relaxed max-w-[800px] text-center text-sm sm:text-base md:text-lg lg:text-xl opacity-80"
-          key={settings?.aboutText ? 'dynamic' : 'static'}
-        />
+        <div className="flex flex-col gap-8 md:gap-10">
+          {paragraphs.map((p, i) => (
+            <div key={i}>
+              <AnimatedText 
+                text={p}
+                className="text-[#D7E2EA] font-medium leading-relaxed text-center text-sm sm:text-base md:text-lg lg:text-xl opacity-80"
+              />
+            </div>
+          ))}
+        </div>
 
-        <FadeIn delay={0} y={40} className="mt-10 sm:mt-12 md:mt-16">
+        <FadeIn delay={0} y={40} className="mt-6 sm:mt-8">
           <ContactButton />
         </FadeIn>
       </div>
@@ -342,34 +355,34 @@ function ProjectCard({ project, index, totalCards, progress }: { project: any, i
           <LiveProjectButton href={project.liveLink} />
         </div>
 
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-[40%_60%] gap-4 sm:gap-6 md:gap-8 overflow-hidden">
-          <div className="flex flex-col gap-4 sm:gap-6 md:gap-8 h-full overflow-hidden">
-            <div className="rounded-3xl overflow-hidden" style={{ height: 'clamp(130px, 16vw, 230px)' }}>
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-[40%_60%] gap-5 sm:gap-6 md:gap-8 overflow-hidden min-h-0">
+          <div className="flex flex-col gap-5 sm:gap-6 md:gap-8 h-full overflow-hidden">
+            <div className="rounded-[2rem] overflow-hidden shrink-0 shadow-lg shadow-black/20" style={{ height: 'clamp(140px, 18vw, 240px)' }}>
               <motion.img 
                 src={project.images.col1_1} 
                 alt="" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-center"
                 whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
               />
             </div>
-            <div className="rounded-3xl overflow-hidden flex-1" style={{ minHeight: 'clamp(160px, 22vw, 340px)' }}>
+            <div className="rounded-[2rem] overflow-hidden flex-1 shadow-lg shadow-black/20" style={{ minHeight: 'clamp(180px, 22vw, 360px)' }}>
               <motion.img 
                 src={project.images.col1_2} 
                 alt="" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-center"
                 whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
               />
             </div>
           </div>
-          <div className="h-full rounded-3xl overflow-hidden">
+          <div className="h-full rounded-[2rem] overflow-hidden shadow-lg shadow-black/20" style={{ minHeight: 'clamp(280px, 40vw, 100%)' }}>
             <motion.img 
               src={project.images.col2} 
               alt="" 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center"
               whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
             />
           </div>
         </div>

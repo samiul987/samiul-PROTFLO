@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { 
@@ -31,14 +31,14 @@ import {
   subscribeCollection,
   subscribeDocument
 } from '../services/dataService';
-import { Project, Service, PricingCard, SiteSettings } from '../types';
+import { Project, Service, SiteSettings } from '../types';
 
 const ADMIN_EMAIL = 'hamimsamiul7@gmail.com';
 
 export default function Admin() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'projects' | 'services' | 'pricing' | 'settings'>('projects');
+  const [activeTab, setActiveTab] = useState<'projects' | 'services' | 'settings'>('projects');
   
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -101,7 +101,6 @@ export default function Admin() {
         <nav className="flex-1 px-4 flex flex-col gap-3">
           <NavItem icon={LayoutDashboard} label="Projects" active={activeTab === 'projects'} onClick={() => setActiveTab('projects')} />
           <NavItem icon={Package} label="Services" active={activeTab === 'services'} onClick={() => setActiveTab('services')} />
-          <NavItem icon={CreditCard} label="Pricing" active={activeTab === 'pricing'} onClick={() => setActiveTab('pricing')} />
           <NavItem icon={SettingsIcon} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
         </nav>
 
@@ -144,7 +143,6 @@ export default function Admin() {
         <AnimatePresence mode="wait">
           {activeTab === 'projects' && <ProjectManager key="projects" />}
           {activeTab === 'services' && <ServiceManager key="services" />}
-          {activeTab === 'pricing' && <PricingManager key="pricing" />}
           {activeTab === 'settings' && <SettingsManager key="settings" />}
         </AnimatePresence>
       </main>
@@ -183,7 +181,7 @@ function ProjectManager() {
     return () => unsub();
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: FormEvent) => {
     e.preventDefault();
     if (!isEditing) return;
     setSaving(true);
@@ -335,7 +333,7 @@ function ServiceManager() {
     return () => unsub();
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: FormEvent) => {
     e.preventDefault();
     if (!isEditing) return;
     setSaving(true);
@@ -435,154 +433,6 @@ function ServiceManager() {
   );
 }
 
-function PricingManager() {
-  const [pricing, setPricing] = useState<PricingCard[]>([]);
-  const [isEditing, setIsEditing] = useState<PricingCard | null>(null);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    const unsub = subscribeCollection<PricingCard>('pricing', (data) => {
-      setPricing(data.sort((a, b) => a.order - b.order));
-    });
-    return () => unsub();
-  }, []);
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isEditing) return;
-    setSaving(true);
-    try {
-      if (pricing.find(p => p.id === isEditing.id)) {
-        await updateDocument('pricing', isEditing.id, isEditing);
-      } else {
-        await createDocument('pricing', isEditing.id, isEditing);
-      }
-      setIsEditing(null);
-    } catch (err) { alert(err); }
-    finally { setSaving(false); }
-  };
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-      <button 
-        onClick={() => setIsEditing({ id: `${Date.now()}`, title: '', price: '', features: [''], ctaText: 'Reserve Now', order: pricing.length, isPopular: false })}
-        className="mb-12 px-10 py-5 bg-white text-black border-2 border-white rounded-2xl font-black uppercase tracking-widest hover:bg-transparent hover:text-white transition-all flex items-center gap-3 shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
-      >
-        <Plus size={20} /> Initialize Investment Plan
-      </button>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {pricing.map((p, i) => (
-          <motion.div 
-            key={p.id} 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.05 }}
-            className={`bg-[#141414] border ${p.isPopular ? 'border-[#7721B1]/50 shadow-[0_30px_60px_-10px_rgba(119,33,177,0.2)]' : 'border-white/5'} p-10 rounded-[50px] flex flex-col group transition-all duration-700 relative overflow-hidden`}
-          >
-            {p.isPopular && <div className="absolute top-8 right-8 w-2 h-2 rounded-full bg-[#7721B1] animate-ping" />}
-            <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#D7E2EA]/30 mb-2">{p.title}</h3>
-            <span className="text-4xl font-black text-white mb-8 tracking-tighter">{p.price}</span>
-            <div className="flex-1 flex flex-col gap-4 mb-12 border-t border-white/5 pt-8">
-               {p.features.slice(0,3).map((f, i) => <div key={i} className="text-xs font-medium text-[#D7E2EA]/40 truncate flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-[#7721B1]/40" /> {f}</div>)}
-               {p.features.length > 3 && <div className="text-[10px] text-[#7721B1] uppercase font-black tracking-widest mt-2">{p.features.length - 3} additional privileges</div>}
-            </div>
-            <div className="flex gap-4">
-              <button onClick={() => setIsEditing(p)} className="flex-1 py-4 bg-white/5 rounded-2xl uppercase font-black text-[10px] tracking-[0.2em] hover:bg-white hover:text-black transition-all">Modify</button>
-              <button 
-                 onClick={async () => { if(confirm('Erase this plan?')) await deleteDocument('pricing', p.id) }} 
-                 className="p-4 bg-red-500/5 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/5"
-              >
-                 <Trash2 size={16} />
-              </button>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <AnimatePresence>
-        {isEditing && (
-          <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 overflow-y-auto">
-            <motion.form 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              onSubmit={handleSave} 
-              className="bg-[#0C0C0C] border border-white/10 p-12 rounded-[50px] w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col gap-12 shadow-2xl relative scrollbar-hide"
-            >
-              <div className="flex justify-between items-center">
-                 <h2 className="text-3xl font-black uppercase tracking-tighter">Investment Plan Setup</h2>
-                 <button type="button" onClick={() => setIsEditing(null)} className="p-4 bg-white/10 rounded-2xl text-white hover:bg-white hover:text-black transition-all shadow-xl">
-                    <X size={24} />
-                 </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <FormGroup label="Plan Title" value={isEditing.title} onChange={v => setIsEditing({...isEditing, title: v})} required />
-                <FormGroup label="Valuation (e.g. $2,499+)" value={isEditing.price} onChange={v => setIsEditing({...isEditing, price: v})} required />
-                <FormGroup label="Call to Action" value={isEditing.ctaText} onChange={v => setIsEditing({...isEditing, ctaText: v})} required />
-                <FormGroup label="Order Priority" type="number" value={isEditing.order} onChange={v => setIsEditing({...isEditing, order: parseInt(v)})} required />
-                <div className="md:col-span-2">
-                   <FormGroup label="Direct Link Override (External or #id)" value={isEditing.ctaLink || ''} onChange={v => setIsEditing({...isEditing, ctaLink: v})} placeholder="#contact" />
-                </div>
-                <div className="flex items-center gap-6 mt-4 md:col-span-2 bg-white/5 p-6 rounded-[24px] border border-white/5">
-                   <input 
-                     type="checkbox" 
-                     id="isPopular"
-                     checked={isEditing.isPopular} 
-                     onChange={e => setIsEditing({...isEditing, isPopular: e.target.checked})}
-                     className="w-7 h-7 accent-[#7721B1] cursor-pointer"
-                   />
-                   <label htmlFor="isPopular" className="text-xs uppercase font-black tracking-widest text-white cursor-pointer select-none">Designate as Recommended Plan</label>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-6">
-                <label className="text-[10px] uppercase font-black tracking-[0.5em] text-[#D7E2EA]/20 mb-2">Entitlements & Features</label>
-                <div className="flex flex-col gap-4">
-                  {isEditing.features.map((f, i) => (
-                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} key={i} className="flex gap-4 group">
-                      <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 text-[10px] font-black">{i+1}</div>
-                      <input 
-                        value={f} 
-                        onChange={e => {
-                          const newFeats = [...isEditing.features];
-                          newFeats[i] = e.target.value;
-                          setIsEditing({...isEditing, features: newFeats});
-                        }}
-                        className="flex-1 bg-transparent border-b border-white/10 py-3 text-sm font-medium outline-none focus:border-[#7721B1] transition-all"
-                        placeholder="Feature description..."
-                      />
-                      <button type="button" onClick={() => {
-                        const newFeats = isEditing.features.filter((_, idx) => idx !== i);
-                        setIsEditing({...isEditing, features: newFeats});
-                      }} className="p-3 text-red-500/40 hover:text-red-500 transition-all"><Trash2 size={18} /></button>
-                    </motion.div>
-                  ))}
-                </div>
-                <button 
-                  type="button" 
-                  onClick={() => setIsEditing({...isEditing, features: [...isEditing.features, '']})} 
-                  className="w-fit px-8 py-4 bg-white/5 text-[10px] uppercase font-black tracking-[0.3em] text-white hover:bg-white hover:text-black rounded-xl transition-all flex items-center gap-3 mt-4"
-                >
-                  <Plus size={16} /> Append Feature
-                </button>
-              </div>
-
-              <button 
-                type="submit" 
-                disabled={saving}
-                className="w-full py-7 bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] rounded-[24px] hover:bg-[#7721B1] hover:text-white transition-all flex items-center justify-center gap-4 shadow-2xl disabled:opacity-50"
-              >
-                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                Deploy To Commercial Model
-              </button>
-            </motion.form>
-          </div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
 function SettingsManager() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [saving, setSaving] = useState(false);
@@ -600,7 +450,7 @@ function SettingsManager() {
            twitter: "https://x.com/weborix5",
            instagram: "https://www.instagram.com/samiul_web_orix/",
            whatsapp: "https://wa.me/message/2WOVEZQU6ARTP1",
-           aboutText: "We are a results-driven web development team focused on helping businesses grow through powerful digital experiences. Our approach combines strategic thinking, modern design, and clean development to build websites that don’t just look impressive—but actually perform.",
+           aboutText: "We are a results-driven web development team focused on helping businesses grow through powerful digital experiences. Our approach combines strategic thinking, modern design, and clean development to build websites that don’t just look impressive—but actually perform.\n\nWe specialize in website design and development tailored to each brand’s identity, ensuring a strong online presence that builds trust and drives engagement. From sleek landing pages to fully functional business platforms, every project is crafted with precision, usability, and scalability in mind.\n\nBeyond just building websites, we help businesses establish and shape their brand in the digital space. Whether you're launching something new or upgrading an existing presence, we work to create a foundation that supports long-term growth and visibility.\n\nOur goal is simple: to turn ideas into impactful digital products that elevate your business and help you stand out in a competitive market.",
            heroText: "Hi, i'm samiul"
          });
        }
@@ -608,7 +458,7 @@ function SettingsManager() {
     return () => unsub();
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: FormEvent) => {
     e.preventDefault();
     if (!settings) return;
     setSaving(true);
