@@ -1,0 +1,89 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A portfolio project item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string", "enum": ["Client", "Personal"] },
+        "images": {
+          "type": "object",
+          "properties": {
+            "col1_1": { "type": "string" },
+            "col1_2": { "type": "string" },
+            "col2": { "type": "string" }
+          },
+          "required": ["col1_1", "col1_2", "col2"]
+        },
+        "liveLink": { "type": "string" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "category", "images", "order"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "A service offered",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+         "name": { "type": "string" },
+         "description": { "type": "string" },
+         "order": { "type": "number" }
+      },
+      "required": ["id", "name", "description", "order"]
+    },
+    "PricingCard": {
+      "title": "Pricing Card",
+      "description": "A pricing plan for services",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "price": { "type": "string" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "ctaText": { "type": "string" },
+        "ctaLink": { "type": "string" },
+        "order": { "type": "number" },
+        "isPopular": { "type": "boolean" }
+      },
+      "required": ["id", "title", "price", "features", "ctaText", "order"]
+    },
+    "Settings": {
+      "title": "Site Settings",
+      "description": "Global settings for the website",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "phone1": { "type": "string" },
+        "phone2": { "type": "string" },
+        "twitter": { "type": "string" },
+        "instagram": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "aboutText": { "type": "string" },
+        "heroText": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "projects": {
+      "schema": "Project",
+      "description": "Collection of portfolio projects"
+    },
+    "services": {
+      "schema": "Service",
+      "description": "Collection of services"
+    },
+    "pricing": {
+      "schema": "PricingCard",
+      "description": "Collection of pricing plans"
+    },
+    "settings/global": {
+      "schema": "Settings",
+      "description": "Global site settings document"
+    }
+  }
+}

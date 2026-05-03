@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 0.1 Global Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+    
+    function isAdmin() {
+      return isEmailVerified() && request.auth.token.email == 'hamimsamiul7@gmail.com';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Entity Validations ---
+
+    function isValidProject(data) {
+      return data.id is string && data.id.size() <= 100 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.category in ['Client', 'Personal'] &&
+             data.images is map &&
+             data.images.col1_1 is string && data.images.col1_1.size() <= 1000 &&
+             data.images.col1_2 is string && data.images.col1_2.size() <= 1000 &&
+             data.images.col2 is string && data.images.col2.size() <= 1000 &&
+             data.order is number &&
+             (data.keys().hasAll(['id', 'name', 'category', 'images', 'order', 'createdAt', 'updatedAt']) && data.keys().size() <= 9);
+    }
+
+    function isValidService(data) {
+      return data.id is string && data.id.size() <= 50 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.description is string && data.description.size() <= 1000 &&
+             data.order is number &&
+             (data.keys().hasAll(['id', 'name', 'description', 'order', 'createdAt', 'updatedAt']) && data.keys().size() == 6);
+    }
+
+    function isValidPricingCard(data) {
+      return data.id is string && data.id.size() <= 50 &&
+             data.title is string && data.title.size() <= 100 &&
+             data.price is string && data.price.size() <= 50 &&
+             data.features is list && data.features.size() >= 1 &&
+             data.ctaText is string && data.ctaText.size() <= 100 &&
+             data.order is number &&
+             (data.keys().hasAll(['id', 'title', 'price', 'features', 'ctaText', 'order', 'createdAt', 'updatedAt']) && data.keys().size() <= 10);
+    }
+
+    function isValidSettings(data) {
+      return (data.get('email', '') is string) &&
+             (data.get('phone1', '') is string) &&
+             (data.get('phone2', '') is string) &&
+             (data.get('twitter', '') is string) &&
+             (data.get('instagram', '') is string) &&
+             (data.get('whatsapp', '') is string) &&
+             (data.get('aboutText', '') is string) &&
+             (data.get('heroText', '') is string);
+    }
+
+    // --- Collection Rules ---
+
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(projectId) && isValidProject(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isAdmin() && isValidId(projectId) && isValidProject(incoming()) && 
+                    incoming().createdAt == existing().createdAt && 
+                    incoming().updatedAt == request.time &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['name', 'category', 'images', 'liveLink', 'order', 'updatedAt']);
+      allow delete: if isAdmin();
+    }
+
+    match /services/{serviceId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(serviceId) && isValidService(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isAdmin() && isValidId(serviceId) && isValidService(incoming()) &&
+                    incoming().createdAt == existing().createdAt &&
+                    incoming().updatedAt == request.time &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['name', 'description', 'order', 'updatedAt']);
+      allow delete: if isAdmin();
+    }
+
+    match /pricing/{pricingId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(pricingId) && isValidPricingCard(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isAdmin() && isValidId(pricingId) && isValidPricingCard(incoming()) &&
+                    incoming().createdAt == existing().createdAt &&
+                    incoming().updatedAt == request.time &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['title', 'price', 'features', 'ctaText', 'ctaLink', 'order', 'isPopular', 'updatedAt']);
+      allow delete: if isAdmin();
+    }
+
+    match /settings/global {
+      allow read: if true;
+      allow write: if isAdmin() && isValidSettings(incoming());
+    }
+  }
+}
